@@ -3,7 +3,7 @@ defmodule MeteoxServer.Worker do
 
   # Client API
   def start_link(opts \\ %{}) do
-    GenServer.start_link __MODULE__, opts, []
+    GenServer.start_link(__MODULE__, opts, [])
   end
 
   def get_temperature(pid, location) do
@@ -12,6 +12,10 @@ defmodule MeteoxServer.Worker do
 
   def get_stats(pid) do
     GenServer.call(pid, :get_stats)
+  end
+
+  def reset_stats(pid) do
+    GenServer.cast(pid, :reset_stats)
   end
 
   # Server Callbacks
@@ -32,8 +36,8 @@ defmodule MeteoxServer.Worker do
     {:reply, stats, stats}
   end
 
-  def handle_cast(msg, state) do
-
+  def handle_cast(:reset_stats, stats) do
+    {:noreply, %{}}
   end
 
   def handle_info(msg, state) do
