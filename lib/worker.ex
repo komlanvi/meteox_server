@@ -10,6 +10,10 @@ defmodule MeteoxServer.Worker do
     GenServer.call(pid, {:location, location})
   end
 
+  def get_stats(pid) do
+    GenServer.call(pid, :get_stats)
+  end
+
   # Server Callbacks
   def init(opts) do
     {:ok, Map.get(opts, :initial_state, %{})}
@@ -23,6 +27,9 @@ defmodule MeteoxServer.Worker do
       {:error, error_message} ->
         {:reply, "Error: #{error_message}", stats}
     end
+  end
+  def handle_call(:get_stats, _from, stats) do
+    {:reply, stats, stats}
   end
 
   def handle_cast(msg, state) do
