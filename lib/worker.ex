@@ -7,7 +7,7 @@ defmodule MeteoxServer.Worker do
   end
 
   def get_temperature(pid, location) do
-
+    GenServer.call(pid, {:location, location})
   end
 
   # Server Callbacks
@@ -16,7 +16,13 @@ defmodule MeteoxServer.Worker do
   end
 
   def handle_call({:location, location}, _from, stats) do
-
+    case temperature_of(location) do
+      {:ok, temp} ->
+        new_stats = update_stats(stats, location)
+        {:reply, "#{location}: #{temp}°C", new_stats}
+      {:error, error_message} ->
+        {:reply, error_message, stats}
+    end
   end
 
   def handle_cast(msg, state) do
@@ -32,5 +38,45 @@ defmodule MeteoxServer.Worker do
   end
 
   # Helper Functions
+  def temperature_of(location) do
+    response = location
+    |> url_of
+    |> HTTPoison.get
+    |> parse_response
+  end
 
+  def url_of(location) do
+    location
+    |> URI.encode
+    |> fn location ->
+      "api.openweathermap.org/data/2.5/weather?q=#{location}&APPID=#{apikey()}"
+       end.()
+  end
+
+  def parse_response({:ok, %HTTPoison.Response{body: body, status_code: 200}}) do
+    body
+    |> JSON.decode!
+    |> compute_weather
+  end
+  def parse_response({:ok, %HTTPoison.Response{status_code: 404}}), do: {:error, "Location not found"}
+  def parse_response(_), do: {:error, "Something went wong"}
+
+  def compute_weather(payload) do
+    payload
+    |> get_in([Access.key!("main"), Access.key!("temp")])
+    |> fn temp -> temp - 273.15 end.()
+    |> Float.ceil(2)
+    |> (&({:ok, &1})).()
+  end
+
+  defp apikey do
+    "261b68a7edde1fdb47ae3c8201b991a3"
+  end
+
+  defp update_stats(stats, location) do
+    case Map.has_key?(stats, location) do
+      true -> Map.update!(stats, location, &(&1 + 1))
+      false -> Map.put_new(stats, location, 1)
+    end
+  end
 end
