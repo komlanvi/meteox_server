@@ -18,6 +18,8 @@ defmodule MeteoxServer.Worker do
     GenServer.cast(pid, :reset_stats)
   end
 
+  def stop(pid), do: GenServer.cast(pid, :stop)
+
   # Server Callbacks
   def init(opts) do
     {:ok, Map.get(opts, :initial_state, %{})}
@@ -39,13 +41,17 @@ defmodule MeteoxServer.Worker do
   def handle_cast(:reset_stats, stats) do
     {:noreply, %{}}
   end
+  def handle_cast(:stop, stats) do
+    {:stop, :normal, stats}
+  end
 
   def handle_info(msg, state) do
 
   end
 
-  def terminate(reason, state) do
-
+  def terminate(reason, stats) do
+    IO.puts "Server terminate of #{inspect reason}"
+    IO.puts "Last stats: #{inspect stats}"
   end
 
   # Helper Functions
