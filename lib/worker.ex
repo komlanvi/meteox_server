@@ -49,14 +49,14 @@ defmodule MeteoxServer.Worker do
   end
 
   # Helper Functions
-  def temperature_of(location) do
+  defp temperature_of(location) do
     response = location
     |> url_of
     |> HTTPoison.get
     |> parse_response
   end
 
-  def url_of(location) do
+  defp url_of(location) do
     location
     |> URI.encode
     |> fn location ->
@@ -64,15 +64,15 @@ defmodule MeteoxServer.Worker do
        end.()
   end
 
-  def parse_response({:ok, %HTTPoison.Response{body: body, status_code: 200}}) do
+  defp parse_response({:ok, %HTTPoison.Response{body: body, status_code: 200}}) do
     body
     |> JSON.decode!
     |> compute_weather
   end
-  def parse_response({:ok, %HTTPoison.Response{status_code: 404}}), do: {:error, "Location not found"}
-  def parse_response(_), do: {:error, "Something went wong"}
+  defp parse_response({:ok, %HTTPoison.Response{status_code: 404}}), do: {:error, "Location not found"}
+  defp parse_response(_), do: {:error, "Something went wong"}
 
-  def compute_weather(payload) do
+  defp compute_weather(payload) do
     payload
     |> get_in([Access.key!("main"), Access.key!("temp")])
     |> fn temp -> temp - 273.15 end.()
