@@ -21,7 +21,7 @@ defmodule MeteoxServer.Worker do
         new_stats = update_stats(stats, location)
         {:reply, "#{location}: #{temp}°C", new_stats}
       {:error, error_message} ->
-        {:reply, error_message, stats}
+        {:reply, "Error: #{error_message}", stats}
     end
   end
 
