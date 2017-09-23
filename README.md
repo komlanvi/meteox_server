@@ -1,6 +1,6 @@
 # MeteoxServer
 
-**TODO: Add description**
+**A CLI Weather application built with elixir (GenServer version)**
 
 ## Installation
 
