@@ -12,11 +12,11 @@ defmodule MeteoxServer.Worker do
     GenServer.call(@name, {:location, location})
   end
 
-  def get_stats() do
+  def get_stats do
     GenServer.call(@name, :get_stats)
   end
 
-  def reset_stats() do
+  def reset_stats do
     GenServer.cast(@name, :reset_stats)
   end
 
