@@ -1,24 +1,26 @@
 defmodule MeteoxServer.Worker do
   use GenServer
 
+  @name :meteox_server
+
   # Client API
   def start_link(opts \\ %{}) do
-    GenServer.start_link(__MODULE__, opts, [])
+    GenServer.start_link(__MODULE__, opts, [name: @name])
   end
 
-  def get_temperature(pid, location) do
-    GenServer.call(pid, {:location, location})
+  def get_temperature(location) do
+    GenServer.call(@name, {:location, location})
   end
 
-  def get_stats(pid) do
-    GenServer.call(pid, :get_stats)
+  def get_stats() do
+    GenServer.call(@name, :get_stats)
   end
 
-  def reset_stats(pid) do
-    GenServer.cast(pid, :reset_stats)
+  def reset_stats() do
+    GenServer.cast(@name, :reset_stats)
   end
 
-  def stop(pid), do: GenServer.cast(pid, :stop)
+  def stop, do: GenServer.cast(@name, :stop)
 
   # Server Callbacks
   def init(opts) do
@@ -38,15 +40,16 @@ defmodule MeteoxServer.Worker do
     {:reply, stats, stats}
   end
 
-  def handle_cast(:reset_stats, stats) do
+  def handle_cast(:reset_stats, _stats) do
     {:noreply, %{}}
   end
   def handle_cast(:stop, stats) do
     {:stop, :normal, stats}
   end
 
-  def handle_info(msg, state) do
-
+  def handle_info(msg, stats) do
+    IO.puts "received unknow message: #{inspect msg}"
+    {:noreply, stats}
   end
 
   def terminate(reason, stats) do
@@ -56,7 +59,7 @@ defmodule MeteoxServer.Worker do
 
   # Helper Functions
   defp temperature_of(location) do
-    response = location
+    location
     |> url_of
     |> HTTPoison.get
     |> parse_response
