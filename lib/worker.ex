@@ -2,6 +2,7 @@ defmodule MeteoxServer.Worker do
   use GenServer
 
   @name :meteox_server
+  @apikey Application.get_env(:meteox_server, __MODULE__)[:apikey]
 
   # Client API
   def start_link(opts \\ %{}) do
@@ -57,7 +58,7 @@ defmodule MeteoxServer.Worker do
     IO.puts "Last stats: #{inspect stats}"
   end
 
-  # Helper Functions
+  # Helper Functi ons
   defp temperature_of(location) do
     location
     |> url_of
@@ -89,9 +90,7 @@ defmodule MeteoxServer.Worker do
     |> (&({:ok, &1})).()
   end
 
-  defp apikey do
-    "261b68a7edde1fdb47ae3c8201b991a3"
-  end
+  defp apikey, do: @apikey
 
   defp update_stats(stats, location) do
     case Map.has_key?(stats, location) do

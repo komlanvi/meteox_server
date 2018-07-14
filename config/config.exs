@@ -28,3 +28,5 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+config :meteox_server, MeteoxServer.Worker, apikey: "261b68a7edde1fdb47ae3c8201b991a3"
